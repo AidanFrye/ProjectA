@@ -5,45 +5,82 @@ using UnityEngine;
 public class CharacterController : MonoBehaviour
 {
     // Start is called before the first frame update
-    private Rigidbody2D rb;
-    private CapsuleCollider2D coll;
+    public Rigidbody2D rb;
     public float yVelocity;
     private float xVelocity;
     private float maxSpeed = 8;
-    public bool grounded = true;
+    public bool grounded;
+    public bool attackState;
+    private float elapsedTime;
+    public GameObject attack;
+    public Animator animator;
+    public int direction;
+    public int health = 5;
     void Start()
     {
+        grounded = true;
+        attackState = false;
         rb = GetComponent<Rigidbody2D>();
-        coll = GetComponent<CapsuleCollider2D>();
     }
 
     void Update()
     {
         if (Input.GetKey(KeyCode.A))
         {
-            xVelocity -= 1;
+            rb.velocity = new Vector2(rb.velocity.x - 1, rb.velocity.y);
+            direction = 1;
         }
         else if (Input.GetKey(KeyCode.D))
         {
-            xVelocity += 1;
-        }
-        else
+            rb.velocity = new Vector2(rb.velocity.x + 1, rb.velocity.y);
+            direction = 2;
+        } else 
         {
-            xVelocity -= 1;
-            if (xVelocity < 0)
+            transform.rotation = Quaternion.Euler(0, 0, 0);
+            if (rb.velocity.x < 0)
             {
-                xVelocity = 0;
+                rb.velocity = new Vector2(rb.velocity.x + 0.1f, rb.velocity.y);
+            }
+            else 
+            {
+                rb.velocity = new Vector2(rb.velocity.x - 0.1f, rb.velocity.y);
+            }
+            if (Mathf.Abs(rb.velocity.x) < 0.2)
+            {
+                rb.velocity = new Vector2(0, rb.velocity.y);
             }
         }
-        if (Mathf.Abs(xVelocity) > maxSpeed)
+        if (Mathf.Abs(rb.velocity.x) > maxSpeed)
         {
-            if (xVelocity < 0)
+            if (rb.velocity.x < 0)
             {
-                xVelocity = -maxSpeed;
+                rb.velocity = new Vector2(-maxSpeed, rb.velocity.y);
             }
             else
             {
-                xVelocity = maxSpeed;
+                rb.velocity = new Vector2(maxSpeed, rb.velocity.y);
+            }
+        }
+        if (Input.GetKeyDown(KeyCode.E) & !attackState) 
+        {
+            attack.SetActive(true);
+            animator.SetBool("isRunning", true);
+            Debug.Log("Attacking now");
+            attackState = true;
+            elapsedTime = 0;
+        }
+        if (attackState) 
+        {
+            elapsedTime += Time.deltaTime;
+            if (elapsedTime > 0.3) 
+            {
+                animator.SetBool("isRunning", false);
+                attack.SetActive(false);
+            }
+            if (elapsedTime > 1) 
+            {
+                Debug.Log("Cooldown finished");
+                attackState = false;
             }
         }
 
@@ -51,7 +88,15 @@ public class CharacterController : MonoBehaviour
         {
             rb.velocity = new Vector2(rb.velocity.x, maxSpeed);
         }
-        rb.velocity = new Vector2(xVelocity, rb.velocity.y);
+        //rb.velocity = new Vector2(xVelocity, rb.velocity.y);
+        if (direction == 1)
+        {
+            transform.rotation = Quaternion.Euler(0, 180, 0);
+        }
+        else 
+        {
+            transform.rotation = Quaternion.Euler(0, 0, 0);
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -60,6 +105,21 @@ public class CharacterController : MonoBehaviour
         {
             grounded = true;
             yVelocity = 0;
+        }
+
+        if (collision.gameObject.CompareTag("Enemy")) 
+        {
+            if (direction == 2)
+            {
+                Debug.Log("player hit");
+                rb.AddForce(new Vector2(-12, 0), ForceMode2D.Impulse);
+            }
+            else 
+            {
+                Debug.Log("player hit");
+                rb.AddForce(new Vector2(12, 0), ForceMode2D.Impulse);
+            }
+            health -= 1;
         }
     }
 
