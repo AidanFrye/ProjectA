@@ -97,6 +97,10 @@ public class CharacterController : MonoBehaviour
         {
             transform.rotation = Quaternion.Euler(0, 0, 0);
         }
+        if (transform.position.x < -33.5 && direction == 1) 
+        {
+            rb.velocity = new Vector2(0, rb.velocity.y);
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)

@@ -18,7 +18,6 @@ public class tilemapLoader : MonoBehaviour
     {
         dbPath = "URI=file:levelDatabase.db";
         CreateDB();
-        WriteMapToDatabase();
         GetNewTilemap();
         PlaceTilemap(0);
     }
