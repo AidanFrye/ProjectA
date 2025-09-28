@@ -6,17 +6,6 @@ using UnityEngine.SceneManagement;
 
 public class MenuButtonsController : MonoBehaviour
 {
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
     public void Click() 
     {
         if (gameObject.transform.name == "Level Select Button")
