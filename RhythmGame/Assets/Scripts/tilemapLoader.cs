@@ -13,12 +13,13 @@ public class tilemapLoader : MonoBehaviour
     public Tilemap tilemap;
     public List<Tile> tiles = new List<Tile>();
     public TileBase[] tileSprites = new TileBase[16];
+    private int selectedLevel;
     void Start()
     {
-        Debug.Log(LevelSelectButtonController.selectedLevel);
+        selectedLevel = LevelSelectButtonController.selectedLevel;
         dbPath = "URI=file:levelDatabase.db";
-        CreateDB();
-        GetNewTilemap();
+        CreateDB(selectedLevel);
+        GetNewTilemap(selectedLevel);
         PlaceTilemap(0);
     }
 
@@ -27,13 +28,13 @@ public class tilemapLoader : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.S)) 
         {
-            ClearTiles();
-            WriteMapToDatabase();
+            ClearTiles(selectedLevel);
+            WriteMapToDatabase(selectedLevel);
             Debug.Log("Map saved");
         }
     }
 
-    public void CreateDB() 
+    public void CreateDB(int levelNum) 
     {
         using (var connection = new SqliteConnection(dbPath)) 
         {
@@ -41,7 +42,7 @@ public class tilemapLoader : MonoBehaviour
 
             using (var command = connection.CreateCommand()) 
             {
-                command.CommandText = "CREATE TABLE IF NOT EXISTS level1 (PositionX INT, PositionY INT, PositionZ INT, tileType INT);";
+                command.CommandText = "CREATE TABLE IF NOT EXISTS level" + levelNum + " (PositionX INT, PositionY INT, PositionZ INT, tileType INT);";
                 command.ExecuteNonQuery();
             }
 
@@ -61,7 +62,7 @@ public class tilemapLoader : MonoBehaviour
         }
     }
 
-    public void ClearTiles() 
+    public void ClearTiles(int levelNum) 
     {
         using (var connection = new SqliteConnection(dbPath))
         {
@@ -69,7 +70,7 @@ public class tilemapLoader : MonoBehaviour
 
             using (var command = connection.CreateCommand())
             {
-                command.CommandText = "DELETE FROM level1";
+                command.CommandText = "DELETE FROM level" + levelNum;
                 command.ExecuteNonQuery();
             }
 
@@ -78,24 +79,7 @@ public class tilemapLoader : MonoBehaviour
         }
     }
 
-    public void AddTile(int posX, int posY, int posZ, int tileType) 
-    {
-        using (var connection = new SqliteConnection(dbPath)) 
-        {
-            connection.Open();
-
-            using (var command = connection.CreateCommand()) 
-            {
-                command.CommandText = "INSERT INTO level1 (PositionX, PositionY, PositionZ, tileType) VALUES ('" + posX + "', '" + posY + "', '" + posZ + "', '" + tileType + "');";
-                command.ExecuteNonQuery();
-            }
-
-            connection.Close();
-            Debug.Log("Added tile to database");
-        }
-    }
-
-    void WriteMapToDatabase()
+    void WriteMapToDatabase(int levelNum)
     {
         List<Tile> tilesToWrite = new List<Tile>();
         for (int x = tilemap.cellBounds.min.x; x < tilemap.cellBounds.max.x; x++)
@@ -129,7 +113,7 @@ public class tilemapLoader : MonoBehaviour
             dbConnection.Open();
             IDbCommand command = dbConnection.CreateCommand();
 
-            command.CommandText = "INSERT INTO level1 (PositionX, PositionY, PositionZ, TileType) VALUES (@PositionX, @PositionY, @PositionZ, @TileType)";
+            command.CommandText = "INSERT INTO level" + levelNum + " (PositionX, PositionY, PositionZ, TileType) VALUES (@PositionX, @PositionY, @PositionZ, @TileType)";
 
 
             for (int i = 0; i < tilesToWrite.Count; i++)
@@ -160,14 +144,14 @@ public class tilemapLoader : MonoBehaviour
         }
     }
 
-    public void GetNewTilemap()
+    public void GetNewTilemap(int levelNum)
     {
         tiles.Clear();
         using (IDbConnection dbConnection = new SqliteConnection(dbPath))
         {
             dbConnection.Open();
             IDbCommand command = dbConnection.CreateCommand();
-            command.CommandText = "SELECT * FROM level1";
+            command.CommandText = "SELECT * FROM level" + levelNum;
             IDataReader reader = command.ExecuteReader();
 
             while (reader.Read())
