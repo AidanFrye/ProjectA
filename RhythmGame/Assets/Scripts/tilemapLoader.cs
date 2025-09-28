@@ -12,10 +12,10 @@ public class tilemapLoader : MonoBehaviour
     private string dbPath;
     public Tilemap tilemap;
     public List<Tile> tiles = new List<Tile>();
-    public TileBase[] tileSprites = new TileBase[16]; 
-
+    public TileBase[] tileSprites = new TileBase[16];
     void Start()
     {
+        Debug.Log(LevelSelectButtonController.selectedLevel);
         dbPath = "URI=file:levelDatabase.db";
         CreateDB();
         GetNewTilemap();
