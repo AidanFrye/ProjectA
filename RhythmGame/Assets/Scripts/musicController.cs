@@ -18,6 +18,7 @@ public class musicController : MonoBehaviour
     {
         audioSource = GetComponent<AudioSource>();
         audioSource.clip = musicArray[song];
+        if(!OptionsButtonController.mute)
         audioSource.Play();
     }
 

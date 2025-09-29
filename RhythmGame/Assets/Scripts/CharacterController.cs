@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class CharacterController : MonoBehaviour
 {
@@ -17,8 +18,10 @@ public class CharacterController : MonoBehaviour
     public int direction;
     public int health = 5;
     public gameStateController stateController;
+    public static int enemyCount = 3;
     void Start()
     {
+        enemyCount = 3;
         grounded = true;
         attackState = false;
         rb = GetComponent<Rigidbody2D>();
@@ -82,7 +85,7 @@ public class CharacterController : MonoBehaviour
                     animator.SetBool("isRunning", false);
                     attack.SetActive(false);
                 }
-                if (elapsedTime > 1)
+                if (elapsedTime > 0.6)
                 {
                     Debug.Log("Cooldown finished");
                     attackState = false;
@@ -106,10 +109,18 @@ public class CharacterController : MonoBehaviour
             {
                 rb.velocity = new Vector2(0, rb.velocity.y);
             }
+            if (transform.position.x > 23 && direction == 2) 
+            {
+                rb.velocity = new Vector2(0, rb.velocity.y);
+            }
         }
         else 
         {
             rb.bodyType = RigidbodyType2D.Static;
+        }
+        if (enemyCount == 0) 
+        {
+            SceneManager.LoadScene("Level Select");
         }
     }
 
@@ -134,6 +145,10 @@ public class CharacterController : MonoBehaviour
                 rb.AddForce(new Vector2(12, 0), ForceMode2D.Impulse);
             }
             health -= 1;
+            if (health == 0) 
+            {
+                SceneManager.LoadScene("Level Select");
+            }
         }
     }
 

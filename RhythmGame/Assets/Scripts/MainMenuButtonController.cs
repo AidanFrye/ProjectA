@@ -17,7 +17,7 @@ public class MainMenuButtonController : MonoBehaviour
         
     }
 
-    private void OnMouseDown()
+    public void OnClick()
     {
         Debug.Log("Button was clicked");
         SceneManager.LoadScene("MainMenu");

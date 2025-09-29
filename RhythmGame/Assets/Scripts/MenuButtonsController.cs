@@ -16,5 +16,13 @@ public class MenuButtonsController : MonoBehaviour
         {
             SceneManager.LoadScene("Credits");
         }
+        else if (gameObject.transform.name == "Options Button")
+        {
+            SceneManager.LoadScene("OptionsScene");
+        }
+        else if (gameObject.transform.name == "Controls Button")
+        {
+            SceneManager.LoadScene("ControlsScene");
+        }
     }
 }

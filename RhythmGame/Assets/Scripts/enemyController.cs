@@ -60,6 +60,14 @@ public class enemyController : MonoBehaviour
                     }
                 }
             }
+            if (direction == 1)
+            {
+                transform.rotation = Quaternion.Euler(0, transform.rotation.y, 0);
+            }
+            else
+            {
+                transform.rotation = Quaternion.Euler(0, transform.rotation.y, 0);
+            }
         }
         else 
         {
@@ -78,9 +86,10 @@ public class enemyController : MonoBehaviour
             {
                 rb.velocity = new Vector2(-10, rb.velocity.y);
             }
-            health -= 1;
+            health--;
             if (health == 0) 
             {
+                CharacterController.enemyCount--;
                 Destroy(gameObject);
             }
         }

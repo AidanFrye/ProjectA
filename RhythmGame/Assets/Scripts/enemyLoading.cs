@@ -11,13 +11,14 @@ public class enemyLoading : MonoBehaviour
     private string dbPath;
     public List<Enemy> enemies = new List<Enemy>();
     public GameObject GameObject;
-
+    private int selectedLevel;
     // Start is called before the first frame update
     void Start()
     {
+        selectedLevel = LevelSelectButtonController.selectedLevel;
         dbPath = "URI=file:levelDatabase.db";
-        CreateDB();
-        GetNewEnemies();
+        CreateDB(selectedLevel);
+        GetNewEnemies(selectedLevel);
         PlaceEnemies();
     }
 
@@ -27,7 +28,7 @@ public class enemyLoading : MonoBehaviour
         
     }
 
-    public void CreateDB()
+    public void CreateDB(int selectedLevel)
     {
         using (var connection = new SqliteConnection(dbPath))
         {
@@ -35,7 +36,7 @@ public class enemyLoading : MonoBehaviour
 
             using (var command = connection.CreateCommand())
             {
-                command.CommandText = "CREATE TABLE IF NOT EXISTS level1enemies (PositionX INT, PositionY INT, PositionZ INT, enemyType INT);";
+                command.CommandText = "CREATE TABLE IF NOT EXISTS level"+ selectedLevel + "enemies (PositionX INT, PositionY INT, PositionZ INT, enemyType INT);";
                 command.ExecuteNonQuery();
             }
 
@@ -44,7 +45,7 @@ public class enemyLoading : MonoBehaviour
         }
     }
 
-    /*public void ClearTable()
+    public void ClearTable(int selectedLevel)
     {
         using (var connection = new SqliteConnection(dbPath))
         {
@@ -52,16 +53,16 @@ public class enemyLoading : MonoBehaviour
 
             using (var command = connection.CreateCommand())
             {
-                command.CommandText = "DELETE FROM level1enemies";
+                command.CommandText = "DELETE FROM level" + selectedLevel+ "enemies";
                 command.ExecuteNonQuery();
             }
 
             connection.Close();
             Debug.Log("Cleared enemies from database");
         }
-    }*/
+    }
 
-    public void AddEnemy(int posX, int posY, int posZ, int enemyType)
+    public void AddEnemy(int posX, int posY, int posZ, int enemyType, int selectedLevel)
     {
         using (var connection = new SqliteConnection(dbPath))
         {
@@ -69,7 +70,7 @@ public class enemyLoading : MonoBehaviour
 
             using (var command = connection.CreateCommand())
             {
-                command.CommandText = "INSERT INTO level1enemies (PositionX, PositionY, PositionZ, enemyType) VALUES ('" + posX + "', '" + posY + "', '" + posZ + "', '" + enemyType + "');";
+                command.CommandText = "INSERT INTO level"+selectedLevel+"enemies (PositionX, PositionY, PositionZ, enemyType) VALUES ('" + posX + "', '" + posY + "', '" + posZ + "', '" + enemyType + "');";
                 command.ExecuteNonQuery();
             }
 
@@ -78,14 +79,14 @@ public class enemyLoading : MonoBehaviour
         }
     }
 
-    public void GetNewEnemies()
+    public void GetNewEnemies(int selectedLevel)
     {
         enemies.Clear();
         using (IDbConnection dbConnection = new SqliteConnection(dbPath))
         {
             dbConnection.Open();
             IDbCommand command = dbConnection.CreateCommand();
-            command.CommandText = "SELECT * FROM level1enemies";
+            command.CommandText = "SELECT * FROM level"+selectedLevel+"enemies";
             IDataReader reader = command.ExecuteReader();
 
             while (reader.Read())
